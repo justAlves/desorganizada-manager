@@ -120,61 +120,72 @@ export function NewOrderDialog({ products }: { products: Product[] }) {
                 return (
                   <div
                     key={idx}
-                    className="grid grid-cols-[1fr_90px_30px] items-end gap-2"
+                    className="rounded-md border bg-card/40 p-2 space-y-2"
                   >
-                    <div>
-                      <Select
-                        value={line.product_id}
-                        onValueChange={(v) =>
+                    <div className="flex items-center gap-2">
+                      <div className="min-w-0 flex-1">
+                        <Select
+                          value={line.product_id}
+                          onValueChange={(v) =>
+                            setLines((prev) =>
+                              prev.map((l, i) =>
+                                i === idx ? { ...l, product_id: v } : l,
+                              ),
+                            )
+                          }
+                        >
+                          <SelectTrigger className="w-full">
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {products.map((prod) => (
+                              <SelectItem key={prod.id} value={prod.id}>
+                                {prod.name} · {prod.size} ({prod.quantity} em estoque)
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <Button
+                        type="button"
+                        size="icon"
+                        variant="ghost"
+                        onClick={() =>
+                          setLines((prev) => prev.filter((_, i) => i !== idx))
+                        }
+                        aria-label="Remover"
+                        className="shrink-0"
+                      >
+                        <Trash2 className="size-4" />
+                      </Button>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Input
+                        type="number"
+                        min={1}
+                        value={line.quantity}
+                        onChange={(e) =>
                           setLines((prev) =>
                             prev.map((l, i) =>
-                              i === idx ? { ...l, product_id: v } : l,
+                              i === idx
+                                ? { ...l, quantity: Number(e.target.value) }
+                                : l,
                             ),
                           )
                         }
-                      >
-                        <SelectTrigger>
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {products.map((prod) => (
-                            <SelectItem key={prod.id} value={prod.id}>
-                              {prod.name} · {prod.size} ({prod.quantity} em estoque)
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
+                        className="w-20"
+                        aria-label="Quantidade"
+                      />
                       {p && (
-                        <p className="mt-1 text-xs text-muted-foreground">
-                          {formatBRL(p.price)} cada
-                        </p>
+                        <div className="min-w-0 flex-1 text-right text-xs text-muted-foreground">
+                          <span className="tabular-nums">{formatBRL(p.price)}</span>{" "}
+                          cada ·{" "}
+                          <span className="font-semibold tabular-nums text-foreground">
+                            {formatBRL(p.price * line.quantity)}
+                          </span>
+                        </div>
                       )}
                     </div>
-                    <Input
-                      type="number"
-                      min={1}
-                      value={line.quantity}
-                      onChange={(e) =>
-                        setLines((prev) =>
-                          prev.map((l, i) =>
-                            i === idx
-                              ? { ...l, quantity: Number(e.target.value) }
-                              : l,
-                          ),
-                        )
-                      }
-                    />
-                    <Button
-                      type="button"
-                      size="icon"
-                      variant="ghost"
-                      onClick={() =>
-                        setLines((prev) => prev.filter((_, i) => i !== idx))
-                      }
-                      aria-label="Remover"
-                    >
-                      <Trash2 className="size-4" />
-                    </Button>
                   </div>
                 );
               })}
